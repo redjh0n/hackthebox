@@ -1,3 +1,3 @@
 # hackthebox
 
-Bu bölümde normalde kendime yazdığım write up'ları paylaşacağım. Yazım hataları var ise kızmayınız...
+Bu bölümde normalde kendime yazdığım write up'ları paylaşacağım. Yazılar çok amatörce veya yazım hataları ile dolu olabilir kızmayınız :D 
