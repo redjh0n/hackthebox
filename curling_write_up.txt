@@ -1,0 +1,34 @@
+-------------------------------------USER---------------------------------
+İlk olarak nmap taraması gerçekleştirdim ve site'nin web arayüzünü dolaşmaya başladım,
+kaynak kodları incelerken en altta secret.txt adlı yazı vardı ve bu dizine girdim
+
+Q3VybGluZzIwMTgh--> Base64 Decode --> Curling2018! 
+
+panel password bulmuştum lazım olan username di, sayfaları dolaşırken makaleler gördüm
+yazılan makaleler super user yetkisine sahipti ve bu makalelerin birinin en altında
+Frolic yazıyordu ve bu dikkatımi çekti bende bunu username yerine kullandım ve giriş yaptım.
+
+Sonrasında siteye reverse shell upload etmek için bir yönteme başvurdum yaptığım şey
+https://www.youtube.com/watch?v=fh7ifo-Wldo bu video da ki gibi mod_simplefileuploadJ30v1.3.5.zip 
+dosyasını upload edip üstüne kendi shellimi ekledim ve netcat den shell aldım.
+
+/home/floris e gittim ve password_backup adlı bir dosya gördüm bu dosyayı kendi bilgisarımda
+txt dosyasına kaydedip terminalde xxd -r backupdosya > yenidosya yaptım ve bana bir dosya verdi
+file komutu ile bakınca bunun bir zip olduğunu öğrendim ve sırasıyla şu işlemleri yaptım
+-->xxd -r das > backups
+-->binwalk -e backups
+-->binwalk -e 0
+-->binwalk -e password
+-->binwalk -e 0
+-->cat password.txt = 5d<wdCbdZu)|hChXll
+
+ve burdan sonra ssh ile bağlantı kurup user.txt aldım.
+
+------------------------------ROOT----------------------------
+
+/home/floris/admin-area dizinin içinde bulunan 2 dosya buldum ve biraz araştırma
+ile bu dosyaların bir script yardımı ile root olarak komut çalıştırabildiğini öğrendim.
+Denemeler ile input'a yazdığımız kodların report ta çalıştığını fark ettim.
+Ve doğru root.txt okuma komutunu bulana kadar denedim ve en son buldum.
+
+url = "file:///root/root.txt"
