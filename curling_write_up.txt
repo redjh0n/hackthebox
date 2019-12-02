@@ -29,6 +29,6 @@ ve burdan sonra ssh ile bağlantı kurup user.txt aldım.
 /home/floris/admin-area dizinin içinde bulunan 2 dosya buldum ve biraz araştırma
 ile bu dosyaların bir script yardımı ile root olarak komut çalıştırabildiğini öğrendim.
 Denemeler ile input'a yazdığımız kodların report ta çalıştığını fark ettim.
-Ve doğru root.txt okuma komutunu bulana kadar denedim ve en son buldum.
+Ve root.txt aldım.
 
 url = "file:///root/root.txt"
